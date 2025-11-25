@@ -1,15 +1,16 @@
 package com.kreitek.pets.infraestructure.bd;
 
-import com.kreitek.pets.domain.Cat;
-import com.kreitek.pets.domain.Dog;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kreitek.pets.domain.Cat;
+import com.kreitek.pets.domain.Dog;
+import com.kreitek.pets.infraestructure.logger.LoggerService;
+
 public class DbService {
     private static volatile DbService instance = null;
-
-    // TODO Logger declaration
+    private static final LoggerService logger = LoggerService.getInstance(); // TODO Changed
+    
     private List<Cat> cats = new ArrayList<>();
     private List<Dog> dogs = new ArrayList<>();
 
@@ -32,20 +33,20 @@ public class DbService {
 
     public void addNewDog(Dog dog) {
         dogs.add(dog);
-        // TODO logger.debug("BdService.Dog added");
+        logger.debug("BdService.Dog added"); // TODO Changed
     }
     public void addNewCat(Cat cat) {
         cats.add(cat);
-        // TODO logger.debug("BdService.Cat added");
+        logger.debug("BdService.Cat added"); // TODO Changed
     }
 
     public List<Cat> getCats() {
-        // TODO logger.debug("BdService.Get " + cats.size() + " cats);
+        logger.debug("BdService.Get " + cats.size() + " cats"); // TODO Changed
         return new ArrayList<>(cats);
     }
 
     public List<Dog> getDogs() {
-        // TODO logger.debug("BdService.Get " + cats.size() + " dogs);
+        logger.debug("BdService.Get " + cats.size() + " dogs"); // TODO Changed
         return new ArrayList<>(dogs);
     }
 }
