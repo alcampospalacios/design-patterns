@@ -16,8 +16,13 @@ public class ConsoleEditor implements Editor {
     public static final String TEXT_CYAN = "\u001B[36m";
     public static final String TEXT_WHITE = "\u001B[37m";
 
-    private final CommandFactory commandFactory = new CommandFactory();
+    private final CommandFactory commandFactory;
     private ArrayList<String> documentLines = new ArrayList<String>();
+    private final EditorHistory history = new EditorHistory();
+
+    public ConsoleEditor() {
+        this.commandFactory = new CommandFactory(this);
+    }
 
     @Override
     public void run() {
@@ -25,6 +30,11 @@ public class ConsoleEditor implements Editor {
         while (!exit) {
             String commandLine = waitForNewCommand();
             try {
+                // Guardar el estado actual antes de ejecutar el comando (excepto para undo)
+                if (!commandLine.trim().equals("undo")) {
+                    saveState();
+                }
+
                 Command command = commandFactory.getCommand(commandLine);
                 command.execute(documentLines);
             } catch (BadCommandException e) {
@@ -34,6 +44,33 @@ public class ConsoleEditor implements Editor {
             }
             showDocumentLines(documentLines);
             showHelp();
+        }
+    }
+
+  
+    public DocumentMemento createMemento() {
+        return new DocumentMemento(documentLines);
+    }
+
+   
+    public void restoreFromMemento(DocumentMemento memento) {
+        if (memento != null) {
+            this.documentLines = memento.getState();
+        }
+    }
+
+   
+    private void saveState() {
+        history.push(createMemento());
+    }
+
+   
+    public void undo() {
+        DocumentMemento memento = history.pop();
+        if (memento != null) {
+            restoreFromMemento(memento);
+        } else {
+            printErrorToConsole("No hay operaciones para deshacer\n");
         }
     }
 
@@ -64,6 +101,7 @@ public class ConsoleEditor implements Editor {
         printLnToConsole("To add new line -> a \"your text\"");
         printLnToConsole("To update line  -> u [line number] \"your text\"");
         printLnToConsole("To delete line  -> d [line number]");
+        printLnToConsole("To undo last operation -> undo");
     }
 
     private void printErrorToConsole(String message) {
